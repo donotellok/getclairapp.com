@@ -643,7 +643,7 @@
       <div class="nav-links">
         <a href="#features" class="nav-link">Features</a>
         <a href="#how-it-works" class="nav-link">How It Works</a>
-        <a href="https://app.getclairapp.com" class="nav-download">Try Clair</a>
+        <a href="#notify" class="nav-download">Get Notified</a>
       </div>
     </div>
   </nav>
@@ -657,8 +657,12 @@
       </div>
       <h1>Untangle your<br>thoughts.</h1>
       <p class="hero-sub">You talk. Clair listens. Clair finds the patterns, blind spots, and open loops hiding in your stream of consciousness&nbsp;&mdash; and tells you what to focus on today.</p>
-      <a href="https://app.getclairapp.com" class="hero-cta-btn" style="display:inline-block;background:#1F1F1F;color:#fff;padding:14px 36px;border-radius:12px;font-weight:600;font-size:1.05rem;text-decoration:none;letter-spacing:-0.01em;transition:opacity 0.2s;">Try Clair on the Web</a>
-      <p class="hero-note">Free to use. Same account syncs with the iOS app.</p>
+      <!-- TODO: Replace with App Store badge once app is live -->
+      <form class="notify-form" onsubmit="handleNotify(event)">
+        <input type="email" placeholder="your@email.com" required aria-label="Email address">
+        <button type="submit">Get Notified</button>
+      </form>
+      <p class="hero-note">Be the first to know when Clair launches.</p>
     </div>
   </section>
 
@@ -841,8 +845,13 @@
   <section class="cta-section" id="notify">
     <div class="container fade-in">
       <h2 class="section-title">Your mind is worth<br>understanding.</h2>
-      <p class="section-desc">Try Clair now on the web, or download on iOS when it launches.</p>
-      <a href="https://app.getclairapp.com" style="display:inline-block;background:#1F1F1F;color:#fff;padding:14px 36px;border-radius:12px;font-weight:600;font-size:1.05rem;text-decoration:none;letter-spacing:-0.01em;transition:opacity 0.2s;">Try Clair on the Web</a>
+      <p class="section-desc">Be the first to know when Clair launches on iOS.</p>
+      <!-- TODO: Wire form to API endpoint (Mailchimp, ConvertKit, or custom backend) -->
+      <form class="notify-form" onsubmit="handleNotify(event)">
+        <input type="email" placeholder="your@email.com" required aria-label="Email address">
+        <button type="submit">Get Notified</button>
+      </form>
+      <p class="notify-subtext">No spam, ever. Just a heads up when we're ready.</p>
     </div>
   </section>
 
