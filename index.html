@@ -418,6 +418,7 @@
     .cards-scroll-wrapper {
       margin-top: 48px;
       overflow: visible;
+      position: relative;
     }
 
     .cards-grid {
@@ -426,7 +427,7 @@
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
-      padding: 4px 0 20px;
+      padding: 4px 10% 20px;
       scrollbar-width: none;
     }
 
@@ -435,18 +436,20 @@
     }
 
     .card {
-      flex: 0 0 280px;
-      scroll-snap-align: start;
+      flex: 0 0 100%;
+      aspect-ratio: 1;
+      scroll-snap-align: center;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 28px 24px;
+      padding: 36px 32px;
       box-shadow: var(--shadow-sm);
       transition: box-shadow 0.3s ease;
-    }
-
-    .card:first-child {
-      margin-left: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
     }
 
     .card:hover {
@@ -454,8 +457,8 @@
     }
 
     .card-icon {
-      width: 36px;
-      height: 36px;
+      width: 48px;
+      height: 48px;
       border-radius: 10px;
       display: flex;
       align-items: center;
@@ -464,23 +467,67 @@
     }
 
     .card-icon svg {
-      width: 20px;
-      height: 20px;
+      width: 28px;
+      height: 28px;
       stroke-width: 2;
       fill: none;
     }
 
     .card h3 {
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 1.15rem;
       color: var(--t1);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .card p {
-      font-size: 0.9rem;
+      font-size: 1rem;
       color: var(--t2);
       line-height: 1.65;
+    }
+
+    /* ── Card Arrows ── */
+    .cards-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      transition: box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    .cards-arrow:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .cards-arrow.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .cards-arrow svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--t1);
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .cards-arrow--left {
+      left: 12px;
+    }
+
+    .cards-arrow--right {
+      right: 12px;
     }
 
     /* ── CTA Section ── */
@@ -837,6 +884,12 @@
         </div>
 
       </div>
+      <button class="cards-arrow cards-arrow--left hidden" aria-label="Scroll left">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="cards-arrow cards-arrow--right" aria-label="Scroll right">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+      </button>
       </div>
     </div>
   </section>
@@ -895,6 +948,32 @@
     });
 
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // ── Card carousel arrows ──
+    const cardsGrid = document.querySelector('.cards-grid');
+    const arrowLeft = document.querySelector('.cards-arrow--left');
+    const arrowRight = document.querySelector('.cards-arrow--right');
+    function getScrollAmount() {
+      const card = cardsGrid.querySelector('.card');
+      return card.offsetWidth + 16; // card width + gap
+    }
+
+    function updateArrows() {
+      const { scrollLeft, scrollWidth, clientWidth } = cardsGrid;
+      arrowLeft.classList.toggle('hidden', scrollLeft <= 0);
+      arrowRight.classList.toggle('hidden', scrollLeft + clientWidth >= scrollWidth - 1);
+    }
+
+    arrowLeft.addEventListener('click', () => {
+      cardsGrid.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
+    });
+
+    arrowRight.addEventListener('click', () => {
+      cardsGrid.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
+    });
+
+    cardsGrid.addEventListener('scroll', updateArrows, { passive: true });
+    updateArrows();
 
     // ── Notify form handler ──
     function handleNotify(e) {
