@@ -29,14 +29,26 @@
     }
 
     body {
-      background: #FFFFFF;
-      color: #1A1A1A;
+      background-color: #FFFFFF !important;
+      color: #1A1A1A !important;
       font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
       font-weight: 400;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       overflow-x: hidden;
+    }
+
+    /* Force light mode everywhere — override browser dark mode */
+    @media (prefers-color-scheme: dark) {
+      html, body {
+        background-color: #FFFFFF !important;
+        color: #1A1A1A !important;
+      }
+      input, button, textarea {
+        background-color: inherit;
+        color: inherit;
+      }
     }
 
     /* ── Tokens ── */
