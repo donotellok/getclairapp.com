@@ -415,36 +415,42 @@
       background: var(--bg-alt);
     }
 
-    .cards-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
+    .cards-scroll-wrapper {
       margin-top: 48px;
+      overflow: visible;
     }
 
-    @media (min-width: 640px) {
-      .cards-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    .cards-grid {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      padding: 4px 0 20px;
+      scrollbar-width: none;
     }
 
-    @media (min-width: 960px) {
-      .cards-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
+    .cards-grid::-webkit-scrollbar {
+      display: none;
     }
 
     .card {
+      flex: 0 0 280px;
+      scroll-snap-align: start;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 28px 24px;
-      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .card:first-child {
+      margin-left: 0;
     }
 
     .card:hover {
       box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
     }
 
     .card-icon {
@@ -779,6 +785,7 @@
         <p class="section-eyebrow">Everything You Need</p>
         <h2 class="section-title" style="text-align:center;">Built for clarity, not clutter.</h2>
       </div>
+      <div class="cards-scroll-wrapper">
       <div class="cards-grid">
 
         <div class="card fade-in">
@@ -829,6 +836,7 @@
           <p>An optional devotional mode that weaves scripture and spiritual reflection into your daily insights.</p>
         </div>
 
+      </div>
       </div>
     </div>
   </section>
