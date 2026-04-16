@@ -2036,7 +2036,7 @@
     arrowRight.addEventListener('click', () => { stopAutoplay(); setTimeout(startAutoplay, 5000); });
 
     // ── Notify form handler ──
-    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwN8EXEc64_BiHtELSZPxNZ8lgtGXVap09J39eqvYtrJ0WTRxEuUkyBao6ydxaIaSes/exec';
+    const WEB3FORMS_KEY = '1582ecce-b702-4183-bd0a-5fcc2da799dd';
 
     function handleNotify(e) {
       e.preventDefault();
@@ -2049,16 +2049,27 @@
       button.disabled = true;
       input.disabled = true;
 
-      fetch(GOOGLE_SHEET_URL, {
+      fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email })
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: 'New Clair Signup: ' + email,
+          from_name: 'Clair Website',
+          email: email,
+          message: email + ' wants to be notified when Clair launches.'
+        })
       })
-      .then(() => {
-        button.textContent = "You're in!";
-        button.style.background = '#34C759';
-        input.value = '';
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          button.textContent = "You're in!";
+          button.style.background = '#34C759';
+          input.value = '';
+        } else {
+          button.textContent = 'Try again';
+          button.style.background = '#FF3B30';
+        }
         setTimeout(() => {
           button.textContent = 'Get Notified';
           button.style.background = '';
