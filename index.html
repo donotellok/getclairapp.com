@@ -399,17 +399,23 @@
 
     @media (max-width: 639px) {
       .hero-visual {
-        min-height: 380px;
+        min-height: auto;
       }
 
       .hero-cards {
-        height: 380px;
-        transform: perspective(1200px) rotateY(-3deg) rotateX(2deg) scale(0.75);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        height: auto;
+        width: 100%;
+        transform: none;
       }
 
       .hero-card {
+        position: static;
         animation: none;
-        max-width: 140px;
+        max-width: none;
+        width: 100%;
       }
     }
 
