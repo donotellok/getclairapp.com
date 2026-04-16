@@ -372,22 +372,22 @@
     }
 
     .hero-card--score {
-      top: 22%;
+      top: 28%;
       left: 38%;
       z-index: 2;
       animation: heroFloat 6s ease-in-out 1.5s infinite;
     }
 
     .hero-card--ask {
-      top: 46%;
+      top: 52%;
       left: 0%;
       z-index: 2;
       animation: heroFloat 6s ease-in-out 3s infinite;
     }
 
     .hero-card--keyword {
-      top: 56%;
-      left: 34%;
+      top: 58%;
+      left: 38%;
       z-index: 3;
       animation: heroFloat 6s ease-in-out 4.5s infinite;
     }
@@ -399,16 +399,17 @@
 
     @media (max-width: 639px) {
       .hero-visual {
-        min-height: 280px;
+        min-height: 380px;
       }
 
       .hero-cards {
-        height: 280px;
-        transform: perspective(1200px) rotateY(-3deg) rotateX(2deg) scale(0.7);
+        height: 380px;
+        transform: perspective(1200px) rotateY(-3deg) rotateX(2deg) scale(0.75);
       }
 
       .hero-card {
         animation: none;
+        max-width: 140px;
       }
     }
 
