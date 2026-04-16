@@ -139,6 +139,14 @@
       color: var(--t1);
       text-decoration: none;
       letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo {
+      width: 20px;
+      height: 20px;
     }
 
     .nav-links {
@@ -273,21 +281,21 @@
 
     .hero-cta {
       max-width: var(--max-width);
-      margin: 32px auto 0;
+      margin: 56px auto 0;
       text-align: center;
     }
 
     /* ── Hero Visual (3D Cards) ── */
     .hero-visual {
       position: relative;
-      min-height: 360px;
+      min-height: 440px;
     }
 
     .hero-cards {
       position: relative;
       z-index: 1;
       width: 85%;
-      height: 360px;
+      height: 440px;
       margin: 0 auto;
       transform: perspective(1200px) rotateY(-4deg) rotateX(3deg);
       transform-origin: 50% 50%;
@@ -296,14 +304,15 @@
     .hero-card {
       position: absolute;
       width: 48%;
-      max-width: 220px;
-      height: 110px;
+      max-width: 200px;
+      aspect-ratio: 1;
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 18px;
+      padding: 24px;
       box-shadow: var(--shadow-md);
       display: flex;
+      flex-direction: column;
       align-items: flex-start;
       gap: 12px;
       will-change: transform;
@@ -1490,7 +1499,7 @@
   <!-- ── Nav ── -->
   <nav class="nav" id="nav">
     <div class="nav-inner">
-      <a href="#" class="nav-wordmark">Clair</a>
+      <a href="#" class="nav-wordmark"><svg class="nav-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="var(--accent)"/><rect x="10" y="55" width="80" height="36" rx="18" fill="#fff"/><path d="M32 72V64l7 8h-3a4 4 0 0 1-4-4z" fill="#FF6B6B"/><path d="M32 64h10v12l-5-4-5 4z" fill="#FF6B6B"/></svg>Clair</a>
       <div class="nav-links">
         <a href="#how-it-works" class="nav-link">How It Works</a>
         <a href="#features" class="nav-link">Features</a>
@@ -2006,6 +2015,8 @@
     arrowRight.addEventListener('click', () => { stopAutoplay(); setTimeout(startAutoplay, 5000); });
 
     // ── Notify form handler ──
+    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbwN8EXEc64_BiHtELSZPxNZ8lgtGXVap09J39eqvYtrJ0WTRxEuUkyBao6ydxaIaSes/exec';
+
     function handleNotify(e) {
       e.preventDefault();
       const form = e.target;
@@ -2013,21 +2024,37 @@
       const button = form.querySelector('button');
       const email = input.value;
 
-      // TODO: Replace with actual API call to your email service
-      console.log('Notify signup:', email);
-
-      button.textContent = "You're in!";
-      button.style.background = '#34C759';
-      input.value = '';
-      input.disabled = true;
+      button.textContent = 'Sending...';
       button.disabled = true;
+      input.disabled = true;
 
-      setTimeout(() => {
-        button.textContent = 'Get Notified';
-        button.style.background = '';
-        input.disabled = false;
-        button.disabled = false;
-      }, 3000);
+      fetch(GOOGLE_SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email })
+      })
+      .then(() => {
+        button.textContent = "You're in!";
+        button.style.background = '#34C759';
+        input.value = '';
+        setTimeout(() => {
+          button.textContent = 'Get Notified';
+          button.style.background = '';
+          input.disabled = false;
+          button.disabled = false;
+        }, 3000);
+      })
+      .catch(() => {
+        button.textContent = 'Try again';
+        button.style.background = '#FF3B30';
+        setTimeout(() => {
+          button.textContent = 'Get Notified';
+          button.style.background = '';
+          input.disabled = false;
+          button.disabled = false;
+        }, 3000);
+      });
     }
   </script>
 
