@@ -399,23 +399,36 @@
 
     @media (max-width: 639px) {
       .hero-visual {
-        min-height: auto;
+        min-height: 320px;
       }
 
       .hero-cards {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        height: auto;
-        width: 100%;
-        transform: none;
+        height: 320px;
+        width: 90%;
+        transform: perspective(1200px) rotateY(-3deg) rotateX(2deg);
       }
 
       .hero-card {
-        position: static;
         animation: none;
-        max-width: none;
-        width: 100%;
+        max-width: 130px;
+        padding: 16px;
+      }
+
+      .hero-card--insights {
+        top: 0%;
+        left: 5%;
+      }
+      .hero-card--score {
+        top: 15%;
+        left: 42%;
+      }
+      .hero-card--ask {
+        top: 42%;
+        left: 2%;
+      }
+      .hero-card--keyword {
+        top: 50%;
+        left: 40%;
       }
     }
 
