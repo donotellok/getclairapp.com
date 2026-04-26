@@ -4,1722 +4,798 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clair — Untangle Your Thoughts</title>
-  <meta name="description" content="Clair is a voice-first journaling app for iOS. Talk freely, and Clair finds the patterns, blind spots, and open loops in your thinking — so you know what to focus on today.">
+  <meta name="description" content="A voice journal that listens for the patterns you can't see yourself — and tells you the one thing worth your focus today. Coming to iOS.">
   <meta property="og:title" content="Clair — Untangle Your Thoughts">
-  <meta property="og:description" content="A voice-first journaling app. Talk freely, and Clair organizes your chaotic thoughts into clarity.">
+  <meta property="og:description" content="A voice journal that listens while you're not clear — and finds the one thing worth your focus today. Coming to iOS.">
   <meta property="og:type" content="website">
-  <!-- TODO: Add og:image and og:url once domain is live -->
-  <!-- TODO: Add favicon -->
+  <meta property="og:url" content="https://getclairapp.com/">
+  <meta property="og:image" content="https://getclairapp.com/logo.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Clair — Untangle Your Thoughts">
+  <meta name="twitter:description" content="A voice journal that listens while you're not clear — and finds the one thing worth your focus today.">
+  <meta name="twitter:image" content="https://getclairapp.com/logo.png">
+  <link rel="canonical" href="https://getclairapp.com/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/logo.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/logo.png">
   <meta name="color-scheme" content="light only">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ── Reset & Base ── */
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    /* ── Reset ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     html {
       scroll-behavior: smooth;
       -webkit-text-size-adjust: 100%;
       color-scheme: light only;
-      scroll-snap-type: y mandatory;
       scroll-padding-top: 64px;
     }
-
     body {
-      background-color: #FFFFFF !important;
-      color: #1A1A1A !important;
-      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #FFFFFF;
+      color: #09090B;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-feature-settings: 'cv11', 'ss01';
       font-weight: 400;
-      line-height: 1.6;
+      line-height: 1.5;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      position: relative;
       overflow-x: hidden;
     }
 
-    /* Force light mode everywhere — override browser dark mode */
+    /* Force light mode (override browser dark) */
     @media (prefers-color-scheme: dark) {
-      html, body {
-        background-color: #FFFFFF !important;
-        color: #1A1A1A !important;
-      }
-      input, button, textarea {
-        background-color: inherit;
-        color: inherit;
-      }
+      html, body { background: #FFFFFF !important; color: #09090B !important; }
     }
 
     /* ── Tokens ── */
     :root {
       --bg: #FFFFFF;
-      --bg-alt: #F6F6F4;
-      --surface: #FFFFFF;
-      --t1: #1A1A1A;
-      --t2: #4A4A4A;
-      --t3: #8A8A8A;
-      --t4: #B0B0B0;
+      --ink: #09090B;
+      --ink-2: #3F3F46;
+      --ink-3: #71717A;
+      --line: #E4E4E7;
+      --soft: #FAFAFA;
       --accent: #007AFF;
-      --accent-hover: #0A84FF;
-      --border: rgba(0, 0, 0, 0.08);
-      --border-dark: rgba(0, 0, 0, 0.12);
-      --highlight: rgba(255, 225, 0, 0.38);
       --green: #34C759;
       --purple: #AF52DE;
       --orange: #FF9500;
       --pink: #FF2D55;
       --red: #FF3B30;
-      --teal: #5AC8FA;
-      --slate: #8E8E93;
-      --radius: 14px;
-      --radius-lg: 20px;
-      --max-width: 1080px;
-      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+      --hl-yellow: rgba(255, 225, 0, 0.45);
+      --hl-blue: rgba(0, 122, 255, 0.14);
+      --hl-purple: rgba(175, 82, 222, 0.16);
+      --hl-orange: rgba(255, 149, 0, 0.22);
+      --hl-pink: rgba(255, 45, 85, 0.14);
+      --hl-green: rgba(52, 199, 89, 0.18);
+      --max-width: 1180px;
     }
 
-    /* ── Container ── */
+    /* ── Skip link ── */
+    .skip-link {
+      position: absolute;
+      left: 12px;
+      top: -40px;
+      z-index: 1000;
+      background: var(--ink);
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .skip-link:focus-visible { top: 12px; }
+
+    /* ── Global dot grid (fixed, behind everything) ── */
+    body::before {
+      content: "";
+      position: fixed; inset: 0;
+      background-image: radial-gradient(circle at 1px 1px, rgba(0,0,0,0.06) 1px, transparent 0);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 0;
+      mask-image: linear-gradient(180deg, transparent 0%, black 6%, black 94%, transparent 100%);
+      -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 6%, black 94%, transparent 100%);
+    }
+
+    /* ── Aurora layer (page-wide, drifts behind sections) ── */
+    .aurora-wrap {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .aurora {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(110px);
+      pointer-events: none;
+    }
+    .aurora.a1 {
+      background: var(--accent);
+      width: 560px; height: 560px;
+      top: -140px; right: 2%;
+      opacity: 0.20;
+      animation: drift1 18s ease-in-out infinite;
+    }
+    .aurora.a2 {
+      background: var(--orange);
+      width: 460px; height: 460px;
+      top: 12%; left: -10%;
+      opacity: 0.14;
+      animation: drift2 22s ease-in-out infinite;
+    }
+    .aurora.a3 {
+      background: var(--pink);
+      width: 420px; height: 420px;
+      top: 38%; right: -8%;
+      opacity: 0.12;
+      animation: drift3 26s ease-in-out infinite;
+    }
+    .aurora.a4 {
+      background: var(--purple);
+      width: 480px; height: 480px;
+      top: 60%; left: 6%;
+      opacity: 0.10;
+      animation: drift1 30s ease-in-out infinite reverse;
+    }
+    .aurora.a5 {
+      background: var(--green);
+      width: 380px; height: 380px;
+      top: 78%; right: 14%;
+      opacity: 0.10;
+      animation: drift2 24s ease-in-out infinite reverse;
+    }
+    @keyframes drift1 {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(-30px, 40px) scale(1.05); }
+    }
+    @keyframes drift2 {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(40px, -30px) scale(1.08); }
+    }
+    @keyframes drift3 {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      50% { transform: translate(-20px, -50px) scale(1.06); }
+    }
+
+    /* ── Containers ── */
     .container {
       max-width: var(--max-width);
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 0 32px;
+      position: relative;
+      z-index: 2;
     }
 
-    .container-narrow {
-      max-width: 720px;
+    /* ── Highlights ── */
+    .hl-y { background: var(--hl-yellow); padding: 0 0.06em; border-radius: 1px; }
+    .hl-b { background: var(--hl-blue); padding: 0 0.06em; border-radius: 1px; }
+    .hl-p { background: var(--hl-purple); padding: 0 0.06em; border-radius: 1px; }
+    .hl-o { background: var(--hl-orange); padding: 0 0.06em; border-radius: 1px; }
+    .hl-pk { background: var(--hl-pink); padding: 0 0.06em; border-radius: 1px; }
+    .hl-g { background: var(--hl-green); padding: 0 0.06em; border-radius: 1px; }
+    .blue { color: var(--accent); }
+
+    .label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+    }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      max-width: var(--max-width);
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .wordmark {
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      font-size: 18px;
+      color: var(--ink);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .wordmark img {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+    }
+    .nav-cta {
+      background: var(--ink);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform .15s ease, filter .15s ease;
+    }
+    .nav-cta:hover { transform: scale(1.02); filter: brightness(1.15); }
+    .nav-cta:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
     }
 
-    /* ── Scroll Animations ── */
+    /* ── Main wrapper ── */
+    main {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      padding: 96px 0 96px;
+      z-index: 1;
+    }
+    .hero h1 {
+      font-size: clamp(56px, 9vw, 116px);
+      font-weight: 800;
+      line-height: 0.94;
+      letter-spacing: -0.045em;
+      margin: 24px 0 32px;
+      max-width: 12ch;
+    }
+    .hero .sub {
+      font-size: clamp(18px, 1.6vw, 22px);
+      color: var(--ink-2);
+      max-width: 56ch;
+      line-height: 1.45;
+      margin-bottom: 32px;
+      font-weight: 400;
+    }
+
+    /* ── Email form ── */
+    .form-row {
+      display: flex;
+      gap: 8px;
+      max-width: 460px;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 6px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      position: relative;
+      z-index: 2;
+    }
+    .form-row input {
+      flex: 1;
+      background: transparent;
+      border: 0;
+      outline: none;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--ink);
+      min-width: 0;
+    }
+    .form-row input::placeholder { color: var(--ink-3); }
+    .form-row input:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+      border-radius: 8px;
+    }
+    .form-row button {
+      background: var(--ink);
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: filter .15s ease, transform .15s ease;
+      white-space: nowrap;
+    }
+    .form-row button:hover:not(:disabled) { filter: brightness(1.15); }
+    .form-row button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .form-row button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .helper {
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--ink-3);
+    }
+    .notify-status {
+      margin-top: 12px;
+      font-size: 13px;
+      min-height: 1.2em;
+      color: var(--ink-3);
+    }
+    .notify-status.is-success { color: var(--green); }
+    .notify-status.is-error { color: var(--red); }
+
+    /* ── Manifesto ── */
+    .manifesto {
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      padding: 120px 0;
+      position: relative;
+      z-index: 1;
+    }
+    .manifesto .stmt {
+      font-size: clamp(40px, 6.5vw, 88px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.035em;
+      color: var(--ink);
+      max-width: 22ch;
+      margin-top: 24px;
+    }
+    .manifesto .stmt em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--ink-3);
+    }
+    .manifesto .meta {
+      margin-top: 32px;
+      color: var(--ink-3);
+      font-size: 14px;
+      max-width: 50ch;
+      line-height: 1.55;
+    }
+
+    /* ── Sample reads ── */
+    .reads {
+      padding: 120px 0;
+      position: relative;
+      z-index: 1;
+    }
+    .reads .lead { margin-bottom: 60px; }
+    .reads .lead h2 {
+      font-size: clamp(32px, 4vw, 56px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-top: 16px;
+      max-width: 16ch;
+    }
+    .read-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    .read {
+      padding: 28px 24px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .read .meta-line {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-3);
+      margin-bottom: 16px;
+    }
+    .read .quote {
+      font-size: 18px;
+      line-height: 1.4;
+      color: var(--ink);
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: -0.005em;
+    }
+    .read .focus {
+      margin-top: 18px;
+      font-size: 13px;
+      color: var(--ink-3);
+      line-height: 1.5;
+    }
+    .read .focus b { color: var(--ink); font-weight: 600; }
+
+    /* ── Three-up screenshots ── */
+    .three-up {
+      padding: 120px 0;
+      position: relative;
+      z-index: 1;
+    }
+    .three-up .lead { margin-bottom: 56px; }
+    .three-up .lead h2 {
+      font-size: clamp(32px, 4vw, 56px);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      margin-top: 16px;
+      max-width: 16ch;
+    }
+    .shots {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .shot { display: flex; flex-direction: column; }
+    .shot .label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+    .shot .num {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-3);
+      letter-spacing: 0.06em;
+    }
+    .shot h3 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 4px 0 8px;
+    }
+    .shot p {
+      font-size: 14px;
+      color: var(--ink-2);
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    /* Screenshot placeholder.
+       TO REPLACE WITH REAL SCREENSHOTS:
+       Inside each <div class="shot-media">, swap the <div class="placeholder">…</div>
+       block for <img src="screenshots/01-voice.png" alt="…" loading="lazy"> (or similar).
+       Filenames suggested: 01-voice.png / 02-read.png / 03-ask.png — drop them in /screenshots/. */
+    .shot-media {
+      aspect-ratio: 9 / 16;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .shot-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(240,240,240,0.6) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      color: var(--ink-3);
+      font-size: 12px;
+      text-align: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .placeholder::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(45deg,
+        transparent 0, transparent 14px,
+        rgba(0,0,0,0.025) 14px, rgba(0,0,0,0.025) 15px);
+      pointer-events: none;
+    }
+    .placeholder span { z-index: 1; position: relative; }
+    .placeholder .ph-label {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+      font-weight: 600;
+    }
+
+    /* ── Founder note ── */
+    .founder-section {
+      position: relative;
+      z-index: 1;
+    }
+    .founder {
+      padding: 140px 0 120px;
+      max-width: 720px;
+    }
+    .founder .label { margin-bottom: 32px; }
+    .founder p {
+      font-size: 19px;
+      line-height: 1.7;
+      color: var(--ink);
+      margin-bottom: 22px;
+      font-weight: 400;
+      letter-spacing: -0.005em;
+    }
+    .founder p:first-of-type {
+      font-size: 26px;
+      line-height: 1.45;
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .founder .signature {
+      margin-top: 48px;
+      font-size: 14px;
+      color: var(--ink-3);
+      font-weight: 500;
+    }
+
+    /* ── Closing dark band ── */
+    .close-wrap {
+      position: relative;
+      z-index: 2;
+    }
+    .close-wrap::before {
+      content: "";
+      position: absolute;
+      top: -180px;
+      left: 0; right: 0;
+      height: 180px;
+      background: linear-gradient(180deg, transparent 0%, rgba(10,10,10,0.4) 60%, rgba(10,10,10,1) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .close {
+      background: #0A0A0A;
+      color: #fff;
+      padding: 140px 0 120px;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+    }
+    .close h2 {
+      font-size: clamp(40px, 6vw, 88px);
+      font-weight: 700;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      color: #fff;
+      max-width: 16ch;
+      margin: 0 auto 40px;
+    }
+    .close .form-row {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      margin: 0 auto;
+      backdrop-filter: blur(8px);
+    }
+    .close .form-row input { color: #fff; }
+    .close .form-row input::placeholder { color: rgba(255,255,255,0.4); }
+    .close .form-row button {
+      background: #fff;
+      color: #0a0a0a;
+    }
+    .close .helper {
+      color: rgba(255,255,255,0.5);
+      margin-top: 20px;
+    }
+    .close .notify-status { color: rgba(255,255,255,0.7); }
+    .close .notify-status.is-success { color: var(--green); }
+    .close .notify-status.is-error { color: var(--red); }
+
+    /* ── Footer (shares dark ground with closing) ── */
+    footer {
+      padding: 40px 0;
+      background: #0A0A0A;
+      color: rgba(255,255,255,0.5);
+      position: relative;
+      z-index: 2;
+    }
+    .foot-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: rgba(255,255,255,0.5);
+      font-size: 13px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .foot-inner a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      margin-left: 24px;
+    }
+    .foot-inner a:hover { color: #fff; }
+    .foot-inner a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    /* ── Scroll fade-in ── */
     .fade-in {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(12px);
       transition: opacity 0.6s ease, transform 0.6s ease;
     }
-
     .fade-in.visible {
       opacity: 1;
       transform: translateY(0);
     }
 
-    /* ── Nav ── */
-    .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      padding: 0 24px;
-      transition: background 0.3s ease, box-shadow 0.3s ease;
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .container { padding: 0 24px; }
+      .nav-inner { padding: 12px 24px; }
+      .hero { padding: 64px 0 56px; }
+      .hero h1 { font-size: 56px; }
+      .read-grid, .shots { grid-template-columns: 1fr; gap: 32px; }
+      .manifesto { min-height: 70vh; padding: 80px 0; }
+      .reads, .three-up { padding: 80px 0; }
+      .founder { padding: 80px 0; }
+      .close { padding: 80px 0; }
+      .aurora { filter: blur(70px); }
+      .form-row { flex-wrap: wrap; }
+      .form-row input { width: 100%; flex-basis: 100%; }
+      .form-row button { width: 100%; }
+      .foot-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .foot-inner a { margin-left: 0; margin-right: 16px; }
     }
 
-    .nav.scrolled {
-      background: rgba(255, 255, 255, 0.92);
-      -webkit-backdrop-filter: blur(20px);
-      backdrop-filter: blur(20px);
-      box-shadow: 0 1px 0 var(--border);
-    }
-
-    .nav-inner {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 60px;
-    }
-
-    .nav-wordmark {
-      font-weight: 700;
-      font-size: clamp(1.1rem, 1.5vw, 1.35rem);
-      color: var(--t1);
-      text-decoration: none;
-      letter-spacing: -0.01em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .nav-logo {
-      width: 20px;
-      height: 20px;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-    }
-
-    .nav-link {
-      font-size: clamp(0.8rem, 1vw, 0.9rem);
-      font-weight: 600;
-      color: var(--t2);
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .nav-link:hover {
-      color: var(--t1);
-    }
-
-    .nav-download {
-      display: inline-flex;
-      align-items: center;
-      font-size: clamp(0.75rem, 1vw, 0.85rem);
-      font-weight: 700;
-      color: #FFFFFF;
-      background: var(--t1);
-      padding: 8px 18px;
-      border-radius: 100px;
-      text-decoration: none;
-      transition: background 0.2s ease;
-    }
-
-    .nav-download:hover {
-      background: #333;
-    }
-
-    /* ── Hero ── */
-    .hero {
-      padding: 120px 24px 60px;
-      position: relative;
-      scroll-snap-align: center;
-    }
-
-    @media (min-width: 768px) {
-      .hero {
-        padding: 130px 24px 70px;
-      }
-    }
-
-    .hero-grid {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-      align-items: center;
-    }
-
-    @media (min-width: 640px) {
-      .hero-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .hero-grid {
-        grid-template-columns: 1.1fr 0.9fr;
-        gap: 48px;
-      }
-    }
-
-    .hero-copy {
-      max-width: 540px;
-    }
-
-    @media (max-width: 639px) {
-      .hero-copy {
-        text-align: center;
-        margin: 0 auto;
-      }
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: clamp(0.7rem, 1vw, 0.8rem);
-      font-weight: 600;
-      color: var(--accent);
-      background: rgba(0, 122, 255, 0.08);
-      padding: 6px 14px;
-      border-radius: 100px;
-      margin-bottom: 28px;
-      letter-spacing: 0.02em;
-    }
-
-    .hero h1 {
-      font-weight: 700;
-      font-size: clamp(2.4rem, 5.5vw, 3.8rem);
-      line-height: 1.15;
-      color: var(--t1);
-      margin-bottom: 20px;
-      letter-spacing: -0.02em;
-    }
-
-    .hero h1 .accent {
-      color: var(--accent);
-    }
-
-    .hero-sub {
-      font-size: clamp(1.05rem, 2vw, 1.2rem);
-      color: var(--t2);
-      line-height: 1.7;
-      max-width: 540px;
-      margin: 0;
-      font-weight: 400;
-    }
-
-    @media (max-width: 639px) {
-      .hero-sub {
-        margin: 0 auto;
-      }
-    }
-
-    .hero-note {
-      margin-top: 16px;
-      font-size: clamp(0.72rem, 1vw, 0.82rem);
-      color: var(--t3);
-    }
-
-    .hero-cta {
-      max-width: var(--max-width);
-      margin: 56px auto 0;
-      text-align: center;
-    }
-
-    /* ── Hero Visual (3D Cards) ── */
-    .hero-visual {
-      position: relative;
-      min-height: 440px;
-      overflow: hidden;
-    }
-
-    .hero-cards {
-      position: relative;
-      z-index: 1;
-      width: 85%;
-      height: 440px;
-      margin: 0 auto;
-      transform: perspective(1200px) rotateY(-4deg) rotateX(3deg);
-      transform-origin: 50% 50%;
-    }
-
-    .hero-card {
-      position: absolute;
-      width: 48%;
-      max-width: 200px;
-      aspect-ratio: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      box-shadow: var(--shadow-md);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 12px;
-      will-change: transform;
-      overflow: hidden;
-    }
-
-    .hero-card__icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .hero-card__icon svg {
-      width: 22px;
-      height: 22px;
-      stroke-width: 2;
-      fill: none;
-    }
-
-    .hero-card__body h3 {
-      font-weight: 700;
-      font-size: 0.85rem;
-      color: var(--t1);
-      margin-bottom: 4px;
-    }
-
-    .hero-card__body p {
-      font-size: 0.78rem;
-      color: var(--t2);
-      line-height: 1.5;
-    }
-
-    .hero-card__score {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--orange);
-      line-height: 1;
-    }
-
-    .hero-card__keyword {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--pink);
-      font-style: italic;
-    }
-
-    .hero-card--insights {
-      top: 5%;
-      left: 2%;
-      z-index: 3;
-      animation: heroFloat 6s ease-in-out infinite;
-    }
-
-    .hero-card--score {
-      top: 20%;
-      left: 45%;
-      z-index: 2;
-      animation: heroFloat 6s ease-in-out 1.5s infinite;
-    }
-
-    .hero-card--ask {
-      top: 45%;
-      left: 5%;
-      z-index: 2;
-      animation: heroFloat 6s ease-in-out 3s infinite;
-    }
-
-    .hero-card--keyword {
-      top: 55%;
-      left: 45%;
-      z-index: 3;
-      animation: heroFloat 6s ease-in-out 4.5s infinite;
-    }
-
-    @keyframes heroFloat {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-
-    @media (max-width: 639px) {
-      .hero-visual {
-        min-height: 320px;
-      }
-
-      .hero-cards {
-        height: 320px;
-        width: 90%;
-        transform: perspective(1200px) rotateY(-3deg) rotateX(2deg);
-      }
-
-      .hero-card {
-        animation: none;
-        max-width: 130px;
-        padding: 16px;
-      }
-
-      .hero-card--insights {
-        top: 2%;
-        left: 8%;
-      }
-      .hero-card--score {
-        top: 18%;
-        left: 45%;
-      }
-      .hero-card--ask {
-        top: 44%;
-        left: 5%;
-      }
-      .hero-card--keyword {
-        top: 52%;
-        left: 42%;
-      }
-    }
-
-    @media (min-width: 640px) and (max-width: 1023px) {
-      .hero-cards {
-        transform: perspective(1200px) rotateY(-3deg) rotateX(2deg) scale(0.85);
-      }
-      .hero-card {
-        max-width: 180px;
-      }
-    }
-
+    /* ── Reduced motion ── */
     @media (prefers-reduced-motion: reduce) {
-      .hero-card {
-        animation: none;
-      }
-    }
-
-    /* ── Divider ── */
-    .divider {
-      width: 48px;
-      height: 1px;
-      background: var(--border-dark);
-      margin: 0 auto;
-    }
-
-    /* ── Section shared ── */
-    section {
-      padding: 80px 0;
-      scroll-snap-align: center;
-    }
-
-    @media (min-width: 768px) {
-      section {
-        padding: 100px 0;
-      }
-    }
-
-    /* ── Blended section backgrounds ── */
-    .section-blend {
-      background: linear-gradient(to bottom, var(--bg) 0%, var(--bg-alt) 15%, var(--bg-alt) 85%, var(--bg) 100%);
-    }
-
-    .section-blend-in {
-      background: linear-gradient(to bottom, var(--bg) 0%, var(--bg-alt) 30%);
-    }
-
-    .section-blend-out {
-      background: linear-gradient(to bottom, var(--bg-alt) 70%, var(--bg) 100%);
-    }
-
-    .section-eyebrow {
-      font-weight: 700;
-      font-size: clamp(0.6rem, 0.8vw, 0.7rem);
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--t3);
-      margin-bottom: 16px;
-    }
-
-    .section-title {
-      font-weight: 700;
-      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
-      color: var(--t1);
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      margin-bottom: 16px;
-    }
-
-    .section-desc {
-      font-size: clamp(0.9rem, 1.5vw, 1.05rem);
-      color: var(--t2);
-      line-height: 1.7;
-      max-width: 520px;
-    }
-
-    /* ── How It Works ── */
-    .how-section {
-      padding: 56px 0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-    }
-
-    .how-section > .container {
-      width: 100%;
-    }
-
-    @media (min-width: 768px) {
-      .how-section {
-        padding: 64px 0;
-      }
-    }
-
-    .steps-flow {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      margin-top: 36px;
-      max-width: 720px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      position: relative;
-      padding: 0 0 32px;
-    }
-
-    .step:last-child {
-      padding-bottom: 0;
-    }
-
-    .step-left {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex-shrink: 0;
-      margin-bottom: 12px;
-    }
-
-    .step-icon-wrap {
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .step-icon-wrap svg {
-      width: 28px;
-      height: 28px;
-      stroke-width: 1.8;
-      fill: none;
-    }
-
-    .step-connector {
-      width: 2px;
-      height: 24px;
-      margin-top: 8px;
-    }
-
-    .step:last-child .step-connector {
-      display: none;
-    }
-
-    .step-content h3 {
-      font-weight: 700;
-      font-size: clamp(1rem, 1.5vw, 1.15rem);
-      color: var(--t1);
-      margin-bottom: 6px;
-    }
-
-    .step-content p {
-      font-size: clamp(0.82rem, 1.2vw, 0.95rem);
-      color: var(--t2);
-      line-height: 1.65;
-      max-width: 400px;
-    }
-
-    /* ── Feature Rows (alternating) ── */
-    .feature-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      align-items: center;
-      padding: 60px 0;
-    }
-
-    .feature-row.reverse .feature-text {
-      order: 2;
-    }
-
-    .feature-row.reverse .feature-visual {
-      order: 1;
-    }
-
-    @media (min-width: 768px) {
-      .feature-row {
-        gap: 64px;
-        padding: 80px 0;
-      }
-    }
-
-    .feature-text .section-eyebrow {
-      margin-bottom: 12px;
-    }
-
-    .feature-text .section-title {
-      margin-bottom: 16px;
-    }
-
-    .feature-text .section-desc {
-      max-width: 100%;
-    }
-
-    .feature-visual {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* ── Phone Frame & App Mockups ── */
-    .phone-frame {
-      width: 100%;
-      max-width: 280px;
-      aspect-ratio: 9 / 19.5;
-      background: #FFFFFF;
-      border-radius: 36px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-lg);
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .phone-frame-placeholder {
-      font-size: 0.8rem;
-      color: var(--t4);
-      text-align: center;
-      padding: 20px;
-      line-height: 1.5;
-    }
-
-    /* Phone mockup shared */
-    .phone-mockup {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-      overflow: hidden;
-    }
-
-    .phone-status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 20px 4px;
-      font-size: 0.6rem;
-      font-weight: 600;
-      color: #1A1A1A;
-      flex-shrink: 0;
-    }
-
-    .phone-status-bar--dark {
-      color: #FFFFFF;
-    }
-
-    /* ── Your Day mockup ── */
-    .mockup-day {
-      background: #FFFFFF;
-    }
-
-    .mockup-day__header {
-      background: #1A1A1A;
-      padding: 8px 18px 14px;
-      flex-shrink: 0;
-    }
-
-    .mockup-day__header-icons {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .mockup-day__header-icons svg {
-      width: 14px;
-      height: 14px;
-      stroke: rgba(255,255,255,0.6);
-      fill: none;
-      stroke-width: 2;
-    }
-
-    .mockup-day__verse {
-      font-size: 0.52rem;
-      color: rgba(255,255,255,0.7);
-      font-style: italic;
-      line-height: 1.5;
-      text-align: center;
-      padding: 0 8px;
-    }
-
-    .mockup-day__verse-ref {
-      font-size: 0.45rem;
-      color: rgba(255,255,255,0.4);
-      text-align: center;
-      margin-top: 4px;
-      font-style: normal;
-    }
-
-    .mockup-day__cal {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      padding: 10px 14px 6px;
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .mockup-day__cal-day {
-      flex: 1;
-      text-align: center;
-      font-size: 0.42rem;
-      color: var(--t3);
-      line-height: 1.2;
-    }
-
-    .mockup-day__cal-day span {
-      display: block;
-      font-size: 0.55rem;
-      font-weight: 600;
-      color: var(--t1);
-      margin-top: 2px;
-    }
-
-    .mockup-day__cal-day.today span {
-      background: #1A1A1A;
-      color: #FFFFFF;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .mockup-day__cal-day.has-dot::after {
-      content: '';
-      display: block;
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: var(--accent);
-      margin: 2px auto 0;
-    }
-
-    .mockup-day__body {
-      flex: 1;
-      overflow: hidden;
-      padding: 12px 16px;
-    }
-
-    .mockup-day__greeting {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--t1);
-      line-height: 1.3;
-    }
-
-    .mockup-day__greeting em {
-      color: var(--green);
-      font-style: normal;
-    }
-
-    .mockup-day__insight {
-      margin-top: 10px;
-      font-size: 0.52rem;
-      color: var(--t2);
-      line-height: 1.6;
-    }
-
-    .mockup-day__insight .hl {
-      background: var(--highlight);
-      padding: 0 2px;
-      border-radius: 2px;
-    }
-
-    .mockup-day__card {
-      margin-top: 10px;
-      background: #FAFAFA;
-      border-radius: 10px;
-      padding: 12px;
-      text-align: center;
-    }
-
-    .mockup-day__card-icon {
-      font-size: 0.8rem;
-      margin-bottom: 4px;
-    }
-
-    .mockup-day__card-label {
-      font-size: 0.4rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 4px;
-    }
-
-    .mockup-day__card-label--purple {
-      color: var(--purple);
-    }
-
-    .mockup-day__card-title {
-      font-size: 0.6rem;
-      font-weight: 700;
-      color: var(--t1);
-      margin-bottom: 2px;
-    }
-
-    .mockup-day__card-desc {
-      font-size: 0.45rem;
-      color: var(--t2);
-      line-height: 1.4;
-    }
-
-    .mockup-day__score {
-      margin-top: 10px;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-
-    .mockup-day__score-label {
-      font-size: 0.4rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--green);
-      margin-bottom: 4px;
-    }
-
-    .mockup-day__score-text {
-      font-size: 0.45rem;
-      color: var(--t2);
-      line-height: 1.5;
-      flex: 1;
-    }
-
-    .mockup-day__score-ring {
-      width: 36px;
-      height: 36px;
-      flex-shrink: 0;
-    }
-
-    .mockup-day__score-ring circle {
-      fill: none;
-      stroke-width: 3;
-    }
-
-    .mockup-day__score-ring .ring-bg {
-      stroke: #E8E8E8;
-    }
-
-    .mockup-day__score-ring .ring-fill {
-      stroke: var(--green);
-      stroke-linecap: round;
-      transform: rotate(-90deg);
-      transform-origin: center;
-    }
-
-    .mockup-day__score-ring text {
-      font-size: 7px;
-      font-weight: 700;
-      fill: var(--t1);
-      font-family: -apple-system, sans-serif;
-    }
-
-    .mockup-day__topbar {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      padding: 4px 18px 0;
-      flex-shrink: 0;
-    }
-
-    .mockup-day__card-explore {
-      font-size: 0.42rem;
-      color: var(--t3);
-      margin-top: 8px;
-    }
-
-    .mockup-day__action {
-      margin-top: 10px;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
-
-    .mockup-day__action-circle {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 1.5px solid var(--border-dark);
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-
-    .mockup-day__action-text {
-      font-size: 0.45rem;
-      color: var(--t2);
-      line-height: 1.5;
-    }
-
-    .mockup-day__fab {
-      position: absolute;
-      bottom: 16px;
-      right: 16px;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--t1);
-      color: #FFFFFF;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      font-weight: 300;
-      line-height: 1;
-    }
-
-    /* ── Recording mockup ── */
-    .mockup-record {
-      background: #FFFFFF;
-    }
-
-    .mockup-record__body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .mockup-record__timer {
-      font-size: 2.2rem;
-      font-weight: 300;
-      color: var(--t1);
-      letter-spacing: 2px;
-      margin-bottom: 16px;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .mockup-record__dots {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 24px;
-    }
-
-    .mockup-record__dots span {
-      width: 3px;
-      height: 3px;
-      border-radius: 50%;
-      background: var(--t3);
-    }
-
-    .mockup-record__line {
-      width: 60%;
-      height: 1px;
-      background: var(--border);
-      margin-bottom: 24px;
-    }
-
-    .mockup-record__tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      justify-content: center;
-      padding: 0 12px;
-      margin-bottom: 32px;
-    }
-
-    .mockup-record__tag {
-      font-size: 0.48rem;
-      color: var(--t2);
-      background: #F4F4F4;
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      padding: 4px 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      white-space: nowrap;
-    }
-
-    .mockup-record__tag-icon {
-      font-size: 0.45rem;
-    }
-
-    .mockup-record__stop {
-      width: 48px;
-      height: 48px;
-      background: #FF3B30;
-      border-radius: 14px;
-      margin: 0 auto;
-    }
-
-    /* ── Journal List mockup ── */
-    .mockup-journal {
-      background: #1A1A1A;
-    }
-
-    .mockup-journal__header {
-      padding: 6px 18px 14px;
-      text-align: center;
-    }
-
-    .mockup-journal__streak {
-      font-size: 0.42rem;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 6px;
-    }
-
-    .mockup-journal__question {
-      font-size: 0.7rem;
-      font-weight: 300;
-      color: #FFFFFF;
-      font-style: italic;
-      line-height: 1.4;
-    }
-
-    .mockup-journal__cal-wrap {
-      display: flex;
-      align-items: center;
-      background: #FFFFFF;
-      border-radius: 20px 20px 0 0;
-      padding: 10px 10px 0;
-      gap: 4px;
-    }
-
-    .mockup-journal__home-icon {
-      flex-shrink: 0;
-      padding: 0 2px;
-    }
-
-    .mockup-journal__body {
-      flex: 1;
-      background: #FFFFFF;
-      padding: 10px 14px;
-      overflow: hidden;
-    }
-
-    .mockup-journal__tags {
-      display: flex;
-      gap: 4px;
-      margin-bottom: 10px;
-      overflow: hidden;
-    }
-
-    .mockup-journal__tag {
-      font-size: 0.42rem;
-      color: var(--t2);
-      background: #F4F4F4;
-      border-radius: 100px;
-      padding: 3px 8px;
-      white-space: nowrap;
-    }
-
-    .mockup-journal__tag--active {
-      background: var(--t1);
-      color: #FFFFFF;
-    }
-
-    .mockup-journal__date-label {
-      font-size: 0.38rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--t3);
-      margin: 8px 0 4px;
-    }
-
-    .mockup-journal__entry {
-      background: #FFFFFF;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 10px;
-      margin-bottom: 6px;
-    }
-
-    .mockup-journal__entry-title {
-      font-size: 0.52rem;
-      font-weight: 700;
-      color: var(--t1);
-      margin-bottom: 2px;
-    }
-
-    .mockup-journal__entry-summary {
-      font-size: 0.42rem;
-      color: var(--t2);
-      line-height: 1.5;
-    }
-
-    .mockup-journal__entry-time {
-      font-size: 0.38rem;
-      color: var(--t3);
-      margin-top: 3px;
-    }
-
-    /* ── Ask Clair mockup ── */
-    .mockup-ask {
-      background: rgba(0,0,0,0.3);
-    }
-
-    .mockup-ask__sheet {
-      margin-top: auto;
-      background: #FFFFFF;
-      border-radius: 16px 16px 0 0;
-      padding: 16px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      max-height: 75%;
-    }
-
-    .mockup-ask__header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 2px;
-    }
-
-    .mockup-ask__title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      color: var(--t1);
-    }
-
-    .mockup-ask__close {
-      font-size: 0.5rem;
-      color: var(--t2);
-    }
-
-    .mockup-ask__subtitle {
-      font-size: 0.42rem;
-      color: var(--t3);
-      margin-bottom: 20px;
-    }
-
-    .mockup-ask__body {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 0 12px;
-    }
-
-    .mockup-ask__sparkle {
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-      opacity: 0.4;
-    }
-
-    .mockup-ask__prompt {
-      font-size: 0.52rem;
-      color: var(--t2);
-      line-height: 1.6;
-    }
-
-    .mockup-ask__input {
-      margin-top: auto;
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      padding: 8px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .mockup-ask__input span {
-      font-size: 0.45rem;
-      color: var(--t4);
-    }
-
-    .mockup-ask__input svg {
-      width: 12px;
-      height: 12px;
-      stroke: var(--t4);
-      fill: none;
-      stroke-width: 2;
-    }
-
-    /* ── Feature Cards Section ── */
-    .cards-section {
-    }
-
-    .cards-scroll-wrapper {
-      margin-top: 36px;
-      overflow: visible;
-      position: relative;
-    }
-
-    .cards-grid {
-      display: flex;
-      gap: 16px;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
-      padding: 0;
-      scrollbar-width: none;
-      max-width: 520px;
-      margin: 0 auto;
-    }
-
-    .cards-grid::-webkit-scrollbar {
-      display: none;
-    }
-
-    .card {
-      flex: 0 0 80%;
-      scroll-snap-align: center;
-      aspect-ratio: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 40px;
-      box-shadow: var(--shadow-sm);
-      transition: box-shadow 0.3s ease;
-    }
-
-    .card:hover {
-      box-shadow: var(--shadow-md);
-    }
-
-    .card-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    .card-icon svg {
-      width: 28px;
-      height: 28px;
-      stroke-width: 2;
-      fill: none;
-    }
-
-    .card h3 {
-      font-weight: 700;
-      font-size: clamp(1.1rem, 2vw, 1.4rem);
-      color: var(--t1);
-      margin-bottom: 10px;
-    }
-
-    .card p {
-      font-size: clamp(0.9rem, 1.3vw, 1.05rem);
-      color: var(--t2);
-      line-height: 1.6;
-      max-width: 320px;
-    }
-
-    /* ── Card Arrows ── */
-    .cards-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1px solid var(--border-dark);
-      background: var(--surface);
-      box-shadow: var(--shadow-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      z-index: 2;
-      transition: background 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .cards-arrow:hover {
-      background: var(--bg-alt);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .cards-arrow svg {
-      width: 20px;
-      height: 20px;
-      stroke: var(--t1);
-      stroke-width: 2;
-      fill: none;
-    }
-
-    .cards-arrow--left {
-      left: calc(50% - 290px);
-    }
-
-    .cards-arrow--right {
-      right: calc(50% - 290px);
-    }
-
-    .cards-arrow.hidden {
-      display: none;
-    }
-
-    @media (max-width: 639px) {
-      .card {
-        padding: 28px;
-      }
-      .cards-arrow {
-        width: 36px;
-        height: 36px;
-      }
-      .cards-arrow--left {
-        left: 4px;
-      }
-      .cards-arrow--right {
-        right: 4px;
-      }
-      .cards-arrow svg {
-        width: 16px;
-        height: 16px;
-      }
-    }
-
-    /* ── CTA Section ── */
-    .cta-section {
-      text-align: center;
-      padding: 100px 0 120px;
-    }
-
-    .cta-section .section-title {
-      text-align: center;
-      max-width: 480px;
-      margin: 0 auto 12px;
-    }
-
-    .cta-section .section-desc {
-      text-align: center;
-      max-width: 440px;
-      margin: 0 auto 32px;
-    }
-
-    /* ── Footer ── */
-    footer {
-      background: linear-gradient(to bottom, var(--bg) 0%, var(--bg-alt) 40%);
-      padding: 48px 0;
-    }
-
-    .footer-inner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .footer-wordmark {
-      font-weight: 700;
-      font-size: clamp(0.95rem, 1.3vw, 1.1rem);
-      color: var(--t1);
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 24px;
-    }
-
-    .footer-links a {
-      font-size: clamp(0.75rem, 1vw, 0.85rem);
-      color: var(--t3);
-      text-decoration: none;
-      transition: color 0.2s ease;
-    }
-
-    .footer-links a:hover {
-      color: var(--t1);
-    }
-
-    .footer-tagline {
-      font-size: clamp(0.75rem, 1vw, 0.85rem);
-      color: var(--t3);
-      font-weight: 600;
-    }
-
-    .footer-copy {
-      font-size: clamp(0.68rem, 0.9vw, 0.78rem);
-      color: var(--t4);
-    }
-
-    /* ── Notify Form ── */
-    .notify-form {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-
-    @media (min-width: 480px) {
-      .notify-form {
-        flex-direction: row;
-      }
-    }
-
-    .notify-form input[type="email"] {
-      flex: 1;
-      font-family: 'Nunito', sans-serif;
-      font-size: clamp(0.82rem, 1.2vw, 0.95rem);
-      font-weight: 400;
-      color: var(--t1);
-      background: var(--bg);
-      border: 1px solid var(--border-dark);
-      border-radius: 100px;
-      padding: 13px 22px;
-      outline: none;
-      transition: border-color 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .notify-form input[type="email"]::placeholder {
-      color: var(--t4);
-    }
-
-    .notify-form input[type="email"]:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-    }
-
-    .notify-form button {
-      font-family: 'Nunito', sans-serif;
-      font-weight: 700;
-      font-size: clamp(0.8rem, 1.1vw, 0.9rem);
-      color: #FFFFFF;
-      background: var(--t1);
-      border: none;
-      padding: 13px 28px;
-      border-radius: 100px;
-      cursor: pointer;
-      transition: background 0.2s ease;
-      white-space: nowrap;
-    }
-
-    .notify-form button:hover {
-      background: #333;
-    }
-
-    .notify-subtext {
-      font-size: 0.82rem;
-      color: var(--t3);
-      margin-top: 12px;
-      text-align: center;
-    }
-
-    .hero-cta .notify-form {
-      margin-bottom: 0;
-    }
-
-    /* ── CTA section form centering ── */
-    .cta-section .notify-form {
-      margin-top: 32px;
-    }
-
-    /* ── Utilities ── */
-    .text-center {
-      text-align: center;
-    }
-
-    .highlight {
-      background: var(--highlight);
-      padding: 1px 4px;
-      border-radius: 3px;
-    }
-
-    .mt-0 { margin-top: 0; }
-
-    /* ── Mobile nav ── */
-    @media (max-width: 639px) {
-      .nav-links .nav-link {
-        display: none;
-      }
+      .aurora { animation: none !important; }
+      .fade-in { transition: none; opacity: 1; transform: none; }
+      html { scroll-behavior: auto; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ── Nav ── -->
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <a href="#" class="nav-wordmark"><svg class="nav-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" rx="22" fill="var(--accent)"/><rect x="10" y="55" width="80" height="36" rx="18" fill="#fff"/><path d="M32 72V64l7 8h-3a4 4 0 0 1-4-4z" fill="#FF6B6B"/><path d="M32 64h10v12l-5-4-5 4z" fill="#FF6B6B"/></svg>Clair</a>
-      <div class="nav-links">
-        <a href="#how-it-works" class="nav-link">How It Works</a>
-        <a href="#features" class="nav-link">Features</a>
-        <a href="#notify" class="nav-download">Get Notified</a>
-      </div>
-    </div>
-  </nav>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- Page-wide aurora layer (behind everything) -->
+<div class="aurora-wrap" aria-hidden="true">
+  <div class="aurora a1"></div>
+  <div class="aurora a2"></div>
+  <div class="aurora a3"></div>
+  <div class="aurora a4"></div>
+  <div class="aurora a5"></div>
+</div>
+
+<!-- ── Nav ── -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="wordmark">
+      <img src="/logo.png" alt="" width="22" height="22">
+      Clair
+    </a>
+    <a href="#notify" class="nav-cta">Get notified</a>
+  </div>
+</nav>
+
+<main id="main-content">
 
   <!-- ── Hero ── -->
   <section class="hero">
-    <div class="hero-grid">
-      <!-- Left: Copy -->
-      <div class="hero-copy fade-in">
-        <div class="hero-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-          Coming soon to iOS
-        </div>
-        <h1><span class="accent">Untangle</span> your<br>thoughts.</h1>
-        <p class="hero-sub">You talk. Clair listens. Clair finds the patterns, blind spots, and open loops hiding in your stream of consciousness&nbsp;&mdash; and tells you what to focus on today.</p>
-      </div>
-
-      <!-- Right: 3D Visual -->
-      <div class="hero-visual">
-        <div class="hero-cards">
-
-          <div class="hero-card hero-card--insights">
-            <div class="hero-card__icon" style="background: rgba(0,122,255,0.1);">
-              <svg viewBox="0 0 24 24" stroke="var(--accent)" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            </div>
-            <div class="hero-card__body">
-              <h3>Daily Insights</h3>
-              <p>Patterns, blind spots, and open loops</p>
-            </div>
-          </div>
-
-          <div class="hero-card hero-card--score">
-            <div class="hero-card__icon" style="background: rgba(255,149,0,0.1);">
-              <svg viewBox="0 0 24 24" stroke="var(--orange)" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div class="hero-card__body">
-              <h3>Clarity Score</h3>
-              <p class="hero-card__score">78</p>
-            </div>
-          </div>
-
-          <div class="hero-card hero-card--ask">
-            <div class="hero-card__icon" style="background: rgba(175,82,222,0.1);">
-              <svg viewBox="0 0 24 24" stroke="var(--purple)" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            </div>
-            <div class="hero-card__body">
-              <h3>Ask Clair</h3>
-              <p>What patterns have I been repeating?</p>
-            </div>
-          </div>
-
-          <div class="hero-card hero-card--keyword">
-            <div class="hero-card__icon" style="background: rgba(255,45,85,0.1);">
-              <svg viewBox="0 0 24 24" stroke="var(--pink)" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </div>
-            <div class="hero-card__body">
-              <h3>Keyword of the Day</h3>
-              <p class="hero-card__keyword">Momentum</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- Centered CTA below the grid -->
-    <div class="hero-cta fade-in">
-      <!-- TODO: Replace with App Store badge once app is live -->
-      <form class="notify-form" onsubmit="handleNotify(event)">
-        <input type="email" placeholder="your@email.com" required aria-label="Email address">
-        <button type="submit">Get Notified</button>
+    <div class="container">
+      <span class="label fade-in">A voice journal · iOS</span>
+      <h1 class="fade-in"><span class="blue">Untangle</span><br><span class="hl-y">your thoughts.</span></h1>
+      <p class="sub fade-in">Most journals wait for you to be clear before you write. Clair listens while you're not — and finds the one thing worth your focus today.</p>
+      <form class="form-row fade-in" onsubmit="handleNotify(event)">
+        <input type="email" placeholder="your@email.com" required aria-label="Email for waitlist (hero form)">
+        <button type="submit">Get notified</button>
       </form>
-      <p class="hero-note">Be the first to know when Clair launches.</p>
+      <p class="notify-status" aria-live="polite"></p>
+      <p class="helper fade-in">No marketing. One email when Clair is ready.</p>
     </div>
   </section>
 
-  <!-- ── How It Works ── -->
-  <section class="how-section section-blend" id="how-it-works">
+  <!-- ── Manifesto ── -->
+  <section class="manifesto">
     <div class="container">
-      <div class="text-center fade-in">
-        <p class="section-eyebrow">How It Works</p>
-        <h2 class="section-title" style="text-align:center;">Three steps to clarity</h2>
+      <span class="label fade-in">A note on what this is</span>
+      <p class="stmt fade-in">
+        Most apps want your <em>data.</em><br>
+        Clair listens for the <span class="hl-p">thing<br>you couldn't quite name</span> —<br>
+        and tells it back to you.
+      </p>
+      <p class="meta fade-in">No prompts, no templates, no productivity scaffolding. Just you, talking out loud, and a quiet read at the end of the day.</p>
+    </div>
+  </section>
+
+  <!-- ── Sample reads ── -->
+  <section class="reads">
+    <div class="container">
+      <div class="lead fade-in">
+        <span class="label">Sample reads</span>
+        <h2>What Clair sounds like<br>at the end of a day.</h2>
       </div>
-      <div class="steps-flow">
-
-        <div class="step fade-in">
-          <div class="step-left">
-            <div class="step-icon-wrap" style="background: rgba(175,82,222,0.1);">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="var(--purple)" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="9" y="2" width="6" height="11" rx="3" />
-                <path d="M5 10v1a7 7 0 0 0 14 0v-1" />
-                <line x1="12" y1="18" x2="12" y2="22" />
-                <line x1="8" y1="22" x2="16" y2="22" />
-              </svg>
-            </div>
-            <div class="step-connector" style="background: linear-gradient(to bottom, rgba(175,82,222,0.3), rgba(0,122,255,0.3));"></div>
-          </div>
-          <div class="step-content">
-            <h3>Talk</h3>
-            <p>Open the app and speak freely. No prompts, no structure, no pressure. Just you.</p>
-          </div>
+      <div class="read-grid">
+        <div class="read fade-in">
+          <p class="meta-line">Tuesday morning · Work · Family</p>
+          <p class="quote">&ldquo;Your drive didn't falter &mdash; but your clarity now lies in <span class="hl-pk">what you allow yourself to set down</span>, not what you keep adding.&rdquo;</p>
+          <p class="focus"><b>Today:</b> Name your two &ldquo;must do&rdquo; areas. Let the rest pause without guilt.</p>
         </div>
-
-        <div class="step fade-in">
-          <div class="step-left">
-            <div class="step-icon-wrap" style="background: rgba(0,122,255,0.1);">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="var(--accent)" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M8 12l2-1 2 2 2-3 2 1" />
-                <circle cx="8" cy="16" r="1" fill="var(--accent)" stroke="none"/>
-                <circle cx="12" cy="17" r="1" fill="var(--accent)" stroke="none"/>
-                <circle cx="16" cy="15.5" r="1" fill="var(--accent)" stroke="none"/>
-              </svg>
-            </div>
-            <div class="step-connector" style="background: linear-gradient(to bottom, rgba(0,122,255,0.3), rgba(52,199,89,0.3));"></div>
-          </div>
-          <div class="step-content">
-            <h3>Clair Listens</h3>
-            <p>Clair processes what you said&nbsp;&mdash; not just the words, but the patterns, open loops, and blind spots underneath.</p>
-          </div>
+        <div class="read fade-in">
+          <p class="meta-line">Saturday evening · Faith · Health</p>
+          <p class="quote">&ldquo;Three Saturdays in a row, you've described feeling &lsquo;behind.&rsquo; But the people you love haven't asked you for more &mdash; <span class="hl-o">only you have</span>.&rdquo;</p>
+          <p class="focus"><b>Today:</b> Sit with the gap between your standards and theirs. Pick one to soften.</p>
         </div>
-
-        <div class="step fade-in">
-          <div class="step-left">
-            <div class="step-icon-wrap" style="background: rgba(52,199,89,0.1);">
-              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" stroke="var(--green)" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <circle cx="12" cy="12" r="6"/>
-                <circle cx="12" cy="12" r="2" fill="var(--green)" stroke="none"/>
-              </svg>
-            </div>
-          </div>
-          <div class="step-content">
-            <h3>Clarity</h3>
-            <p>Get a daily snapshot: what matters, what you're avoiding, and one thing to focus on today.</p>
-          </div>
+        <div class="read fade-in">
+          <p class="meta-line">Wednesday late · Side project</p>
+          <p class="quote">&ldquo;You keep returning to one tension: caring deeply about output while <span class="hl-g">resenting how much you've taken on</span>.&rdquo;</p>
+          <p class="focus"><b>Today:</b> One thing on the list is doing the work of two. Cut it, or rename it honestly.</p>
         </div>
-
       </div>
     </div>
   </section>
 
-  <!-- ── Feature 1: Your Day ── -->
-  <section id="features">
+  <!-- ── Three-up screenshots ── -->
+  <section class="three-up">
     <div class="container">
-      <div class="feature-row fade-in">
-        <div class="feature-text">
-          <p class="section-eyebrow" style="color: var(--accent);">Your Day, Untangled</p>
-          <h2 class="section-title">Reads between your lines.</h2>
-          <p class="section-desc">Every day, Clair generates insight cards that surface <span class="highlight">patterns</span>, blind spots, open loops, and a keyword of the day. A clarity score shows how untangled your thinking is&nbsp;&mdash; and what still needs attention.</p>
+      <div class="lead fade-in">
+        <span class="label">How it works</span>
+        <h2>Talk. Read. Ask.</h2>
+      </div>
+      <div class="shots">
+        <div class="shot fade-in">
+          <div class="label-row">
+            <span class="num">01</span>
+            <span class="label" style="font-size:10px">VOICE-FIRST</span>
+          </div>
+          <h3>Talk, don't <span class="hl-b">type</span>.</h3>
+          <p>The walk, the commute, the 2am brain dump. Open the app and speak &mdash; no prompts, no templates.</p>
+          <div class="shot-media">
+            <!-- TO REPLACE: swap this <div class="placeholder">…</div> with <img src="screenshots/01-voice.png" alt="Clair voice recording screen"> -->
+            <div class="placeholder">
+              <span class="ph-label">screenshot · voice recording</span>
+              <span>(replace with real PNG)</span>
+            </div>
+          </div>
         </div>
-        <div class="feature-visual">
-          <div class="phone-frame">
-            <div class="phone-mockup mockup-day">
-              <div class="phone-status-bar"><span>9:41</span><span>&#x2022;&#x2022;&#x2022;</span></div>
-              <div class="mockup-day__topbar">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
-              </div>
-              <div class="mockup-day__cal">
-                <div class="mockup-day__cal-day has-dot" style="color:var(--red)"><small>Sun</small><span style="color:var(--red)">12</span></div>
-                <div class="mockup-day__cal-day has-dot"><small>Mon</small><span>13</span></div>
-                <div class="mockup-day__cal-day today has-dot"><small>Tue</small><span>14</span></div>
-                <div class="mockup-day__cal-day"><small>Wed</small><span>15</span></div>
-                <div class="mockup-day__cal-day"><small>Thu</small><span>16</span></div>
-                <div class="mockup-day__cal-day"><small>Fri</small><span>17</span></div>
-                <div class="mockup-day__cal-day"><small>Sat</small><span>18</span></div>
-              </div>
-              <div class="mockup-day__body">
-                <p class="mockup-day__insight" style="margin-top: 0;">Your drive didn't falter&mdash;but your clarity now lies in what you allow yourself to set down, not what you attempt to carry.</p>
-                <div class="mockup-day__card" style="padding: 14px 12px 10px;">
-                  <div class="mockup-day__card-icon">&#9728;&#65039;</div>
-                  <p class="mockup-day__card-label">Today's Application</p>
-                  <p class="mockup-day__card-title">Contain, Triage, Let Go</p>
-                  <p class="mockup-day__card-desc">Refocus on essentials and allow some <span style="color: var(--accent); text-decoration: underline;">commitments</span> to wait without guilt.</p>
-                  <p class="mockup-day__card-explore">Tap to explore</p>
-                </div>
-                <div class="mockup-day__score">
-                  <div>
-                    <p class="mockup-day__score-label">Clarity Score</p>
-                    <p class="mockup-day__score-text">Your candid self-reflection and willingness to triage are real strengths. Clarity will increase as you become ev...</p>
-                  </div>
-                  <svg class="mockup-day__score-ring" viewBox="0 0 40 40">
-                    <circle class="ring-bg" cx="20" cy="20" r="16"/>
-                    <circle class="ring-fill" cx="20" cy="20" r="16" stroke-dasharray="100.5" stroke-dashoffset="28.1"/>
-                    <text x="20" y="22" text-anchor="middle" dominant-baseline="middle">72%</text>
-                  </svg>
-                </div>
-                <div class="mockup-day__action">
-                  <div class="mockup-day__action-circle"></div>
-                  <p class="mockup-day__action-text">Name your two 'must do' areas and let the rest truly pause.</p>
-                </div>
-              </div>
-              <div class="mockup-day__fab">+</div>
+        <div class="shot fade-in">
+          <div class="label-row">
+            <span class="num">02</span>
+            <span class="label" style="font-size:10px">DAILY READ</span>
+          </div>
+          <h3>Reads between your <span class="hl-y">lines</span>.</h3>
+          <p>Each day Clair returns the day's signal: patterns underneath, open loops you forgot, one thing worth your focus.</p>
+          <div class="shot-media">
+            <!-- TO REPLACE: swap with <img src="screenshots/02-read.png" alt="Clair daily insight screen"> -->
+            <div class="placeholder">
+              <span class="ph-label">screenshot · daily insight</span>
+              <span>(replace with real PNG)</span>
+            </div>
+          </div>
+        </div>
+        <div class="shot fade-in">
+          <div class="label-row">
+            <span class="num">03</span>
+            <span class="label" style="font-size:10px">ASK CLAIR</span>
+          </div>
+          <h3>Your journal <span class="hl-pk">talks back</span>.</h3>
+          <p>Ask Clair anything about your past entries &mdash; patterns, themes, what you wrote about last week.</p>
+          <div class="shot-media">
+            <!-- TO REPLACE: swap with <img src="screenshots/03-ask.png" alt="Clair Ask screen"> -->
+            <div class="placeholder">
+              <span class="ph-label">screenshot · ask clair</span>
+              <span>(replace with real PNG)</span>
             </div>
           </div>
         </div>
@@ -1727,368 +803,124 @@
     </div>
   </section>
 
-  <!-- ── Feature 2: Voice-First ── -->
-  <section class="section-blend">
+  <!-- ── Founder note ── -->
+  <section class="founder-section">
     <div class="container">
-      <div class="feature-row reverse fade-in">
-        <div class="feature-text">
-          <p class="section-eyebrow" style="color: var(--purple);">Voice-First</p>
-          <h2 class="section-title">Talk, don't type.</h2>
-          <p class="section-desc">Designed for your commute, your walk, your 2am brain dump. Just open the app and start speaking&nbsp;&mdash; Clair takes care of the rest. No prompts. No templates. Just you.</p>
-        </div>
-        <div class="feature-visual">
-          <div class="phone-frame">
-            <div class="phone-mockup mockup-record">
-              <div class="phone-status-bar"><span>9:41</span><span>&#x2022;&#x2022;&#x2022;</span></div>
-              <div class="mockup-record__body">
-                <div class="mockup-record__timer">03:42</div>
-                <div class="mockup-record__dots">
-                  <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                </div>
-                <div class="mockup-record__line"></div>
-                <div class="mockup-record__tags">
-                  <span class="mockup-record__tag"><span class="mockup-record__tag-icon">&#10052;&#65039;</span> Faith</span>
-                  <span class="mockup-record__tag"><span class="mockup-record__tag-icon">&#10084;&#65039;</span> Relationships</span>
-                  <span class="mockup-record__tag"><span class="mockup-record__tag-icon">&#128118;</span> Family</span>
-                  <span class="mockup-record__tag"><span class="mockup-record__tag-icon">&#127968;</span> Home</span>
-                  <span class="mockup-record__tag"><span class="mockup-record__tag-icon">&#128188;</span> Work</span>
-                  <span class="mockup-record__tag"><span class="mockup-record__tag-icon">&#127891;</span> School</span>
-                  <span class="mockup-record__tag"><span class="mockup-record__tag-icon">&#9889;</span> Side Project</span>
-                  <span class="mockup-record__tag"><span class="mockup-record__tag-icon">&#128176;</span> Finance</span>
-                  <span class="mockup-record__tag"><span class="mockup-record__tag-icon">&#127807;</span> Health</span>
-                </div>
-                <div class="mockup-record__stop"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="founder fade-in">
+        <span class="label">A note from the maker</span>
+        <p>There was too much going on in my head&mdash;more than I could carry. I was forgetting the things that mattered, getting stuck on what to prioritize, and the clutter wasn't clearing just by writing it down. What I needed was someone to read it back to me and tell me what I'd missed.</p>
+        <p>Clair is that. A journal you talk&mdash;<span class="hl-b">one that listens</span> and gives back the one thing your own mind was trying to say.</p>
+        <p class="signature">&mdash; Erick &middot; Founder</p>
       </div>
     </div>
   </section>
 
-  <!-- ── Feature 3: Your Story ── -->
-  <section>
-    <div class="container">
-      <div class="feature-row fade-in">
-        <div class="feature-text">
-          <p class="section-eyebrow" style="color: var(--orange);">Your Story, Preserved</p>
-          <h2 class="section-title">A living record of who you're becoming.</h2>
-          <p class="section-desc">Every entry becomes part of your legacy. A searchable, private archive of how you think, what you care about, and how your mind evolves over time.</p>
-        </div>
-        <div class="feature-visual">
-          <div class="phone-frame">
-            <div class="phone-mockup mockup-journal">
-              <div class="phone-status-bar phone-status-bar--dark"><span>9:41</span><span>&#x2022;&#x2022;&#x2022;</span></div>
-              <div class="mockup-journal__header">
-                <p class="mockup-journal__streak">32-day streak &middot; 29 entries this month</p>
-                <p class="mockup-journal__question">What are you avoiding &mdash; and why?</p>
-              </div>
-              <div class="mockup-journal__cal-wrap">
-                <div class="mockup-journal__home-icon">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--t2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                </div>
-                <div class="mockup-day__cal" style="background:#FFFFFF; flex: 1; border: none; padding: 10px 4px 6px;">
-                  <div class="mockup-day__cal-day has-dot" style="color:var(--red)"><small>Sun</small><span style="color:var(--red)">29</span></div>
-                  <div class="mockup-day__cal-day"><small>Mon</small><span>30</span></div>
-                  <div class="mockup-day__cal-day"><small>Tue</small><span>31</span></div>
-                  <div class="mockup-day__cal-day"><small>Wed</small><span>1</span></div>
-                  <div class="mockup-day__cal-day today has-dot"><small>Thu</small><span>2</span></div>
-                  <div class="mockup-day__cal-day"><small>Fri</small><span>3</span></div>
-                  <div class="mockup-day__cal-day"><small>Sat</small><span>4</span></div>
-                </div>
-              </div>
-              <div class="mockup-journal__body">
-                <div class="mockup-journal__tags">
-                  <span class="mockup-journal__tag mockup-journal__tag--active">All tags</span>
-                  <span class="mockup-journal__tag">Faith</span>
-                  <span class="mockup-journal__tag">Work</span>
-                  <span class="mockup-journal__tag">Health</span>
-                  <span class="mockup-journal__tag">Family</span>
-                </div>
-                <p class="mockup-journal__date-label">Thursday, April 2</p>
-                <div class="mockup-journal__entry">
-                  <p class="mockup-journal__entry-title">Adjusting Sleep and Pace</p>
-                  <p class="mockup-journal__entry-summary">&bull; Running on a sleep deficit, promising to reset your bedtime and recover</p>
-                  <p class="mockup-journal__entry-time">4:12 PM</p>
-                </div>
-              </div>
-              <div class="mockup-day__fab">+</div>
-            </div>
-          </div>
+  <!-- ── Closing dark band + footer (unified ground) ── -->
+  <div class="close-wrap">
+    <section class="close" id="notify">
+      <div class="container fade-in">
+        <h2>Your mind is worth understanding.</h2>
+        <form class="form-row" onsubmit="handleNotify(event)">
+          <input type="email" placeholder="your@email.com" required aria-label="Email for waitlist (footer form)">
+          <button type="submit">Get notified</button>
+        </form>
+        <p class="notify-status" aria-live="polite"></p>
+        <p class="helper">No marketing. One email when Clair is ready.</p>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">
+        <div class="foot-inner">
+          <span><b>Clair</b> &middot; Untangle Your Thoughts&trade; &middot; &copy; 2026</span>
+          <span><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></span>
         </div>
       </div>
-    </div>
-  </section>
+    </footer>
+  </div>
 
-  <!-- ── Feature 4: Ask Clair ── -->
-  <section class="section-blend">
-    <div class="container">
-      <div class="feature-row reverse fade-in">
-        <div class="feature-text">
-          <p class="section-eyebrow" style="color: var(--pink);">Ask Clair</p>
-          <h2 class="section-title">Your journal talks back.</h2>
-          <p class="section-desc">Ask Clair anything about your entries &mdash; patterns, moods, themes, or what you wrote about last week. It knows your story because it's been listening all along.</p>
-        </div>
-        <div class="feature-visual">
-          <div class="phone-frame">
-            <div class="phone-mockup mockup-ask">
-              <div class="phone-status-bar phone-status-bar--dark"><span>9:41</span><span>&#x2022;&#x2022;&#x2022;</span></div>
-              <div class="mockup-ask__sheet">
-                <div class="mockup-ask__header">
-                  <div>
-                    <p class="mockup-ask__title">Ask Clair</p>
-                    <p class="mockup-ask__subtitle">Ask about your past entries and patterns</p>
-                  </div>
-                  <span class="mockup-ask__close">Close</span>
-                </div>
-                <div class="mockup-ask__body">
-                  <div class="mockup-ask__sparkle">&#10024;</div>
-                  <p class="mockup-ask__prompt">Ask me anything about your journal &mdash; patterns, moods, themes, or what you wrote about last week.</p>
-                </div>
-                <div class="mockup-ask__input">
-                  <span>Ask about your entries...</span>
-                  <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+</main>
 
-  <!-- ── More Features Grid ── -->
-  <section class="cards-section section-blend">
-    <div class="container">
-      <div class="text-center fade-in">
-        <p class="section-eyebrow">Everything You Need</p>
-        <h2 class="section-title" style="text-align:center;">Built for clarity, not clutter.</h2>
-      </div>
-      <div class="cards-scroll-wrapper">
-      <div class="cards-grid">
-
-        <div class="card fade-in">
-          <div class="card-icon" style="background: rgba(52,199,89,0.1);">
-            <svg viewBox="0 0 24 24" stroke="var(--green)" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          </div>
-          <h3>Today's Application</h3>
-          <p>A practical exercise to apply today's insight&nbsp;&mdash; one small action to move forward.</p>
-        </div>
-
-        <div class="card fade-in">
-          <div class="card-icon" style="background: rgba(175,82,222,0.1);">
-            <svg viewBox="0 0 24 24" stroke="var(--purple)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/></svg>
-          </div>
-          <h3>Today's Theme</h3>
-          <p>One keyword that captures the day's emotional thread, with context on what it means.</p>
-        </div>
-
-        <div class="card fade-in">
-          <div class="card-icon" style="background: rgba(255,45,85,0.1);">
-            <svg viewBox="0 0 24 24" stroke="var(--pink)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </div>
-          <h3>Gentle Cue</h3>
-          <p>A compassionate nudge about something you might be carrying or avoiding.</p>
-        </div>
-
-        <div class="card fade-in">
-          <div class="card-icon" style="background: rgba(0,122,255,0.1);">
-            <svg viewBox="0 0 24 24" stroke="var(--accent)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          </div>
-          <h3>Day in View</h3>
-          <p>A concise summary of your day&nbsp;&mdash; what came up, what shifted, and how it all connects.</p>
-        </div>
-
-        <div class="card fade-in">
-          <div class="card-icon" style="background: rgba(255,149,0,0.1);">
-            <svg viewBox="0 0 24 24" stroke="var(--orange)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
-          </div>
-          <h3>Attention</h3>
-          <p>Surfaces where your focus is being pulled or diluted, so you can choose where to invest.</p>
-        </div>
-
-        <div class="card fade-in">
-          <div class="card-icon" style="background: rgba(142,142,147,0.1);">
-            <svg viewBox="0 0 24 24" stroke="var(--slate)" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/></svg>
-          </div>
-          <h3>Blind Spots</h3>
-          <p>Patterns you might not see on your own&nbsp;&mdash; subtle dynamics shaping your decisions.</p>
-        </div>
-
-
-      </div>
-      <button class="cards-arrow cards-arrow--left hidden" aria-label="Scroll left">
-        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="cards-arrow cards-arrow--right" aria-label="Scroll right">
-        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
-      </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── CTA ── -->
-  <section class="cta-section" id="notify">
-    <div class="container fade-in">
-      <h2 class="section-title">Your mind is worth<br>understanding.</h2>
-      <p class="section-desc">Be the first to know when Clair launches on iOS.</p>
-      <!-- TODO: Wire form to API endpoint (Mailchimp, ConvertKit, or custom backend) -->
-      <form class="notify-form" onsubmit="handleNotify(event)">
-        <input type="email" placeholder="your@email.com" required aria-label="Email address">
-        <button type="submit">Get Notified</button>
-      </form>
-      <p class="notify-subtext">No spam, ever. Just a heads up when we're ready.</p>
-    </div>
-  </section>
-
-  <!-- ── Footer ── -->
-  <footer>
-    <div class="container">
-      <div class="footer-inner">
-        <span class="footer-wordmark">Clair</span>
-        <p class="footer-tagline">Untangle Your Thoughts&trade;</p>
-        <div class="footer-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-        </div>
-        <p class="footer-copy">&copy; 2026 Clair, Inc. All Rights Reserved.</p>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    // ── Nav scroll state ──
-    const nav = document.getElementById('nav');
-
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 20) {
-        nav.classList.add('scrolled');
-      } else {
-        nav.classList.remove('scrolled');
+<script>
+  // ── Scroll fade-in animations ──
+  const fadeObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        fadeObserver.unobserve(entry.target);
       }
-    }, { passive: true });
-
-    // ── Scroll animations with IntersectionObserver ──
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, {
-      threshold: 0.1,
-      rootMargin: '0px 0px -60px 0px'
     });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+  document.querySelectorAll('.fade-in').forEach(el => fadeObserver.observe(el));
 
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+  // ── Notify form handler (Web3Forms) ──
+  const WEB3FORMS_KEY = '1582ecce-b702-4183-bd0a-5fcc2da799dd';
 
-    // ── Card carousel arrows ──
-    const cardsGrid = document.querySelector('.cards-grid');
-    const arrowLeft = document.querySelector('.cards-arrow--left');
-    const arrowRight = document.querySelector('.cards-arrow--right');
-    function getScrollAmount() {
-      const card = cardsGrid.querySelector('.card');
-      return card.offsetWidth; // full card width (no gap)
-    }
+  function handleNotify(e) {
+    e.preventDefault();
+    const form = e.target;
+    const input = form.querySelector('input[type="email"]');
+    const button = form.querySelector('button');
+    const status = form.nextElementSibling;
+    const email = input.value;
 
-    function updateArrows() {
-      const { scrollLeft, scrollWidth, clientWidth } = cardsGrid;
-      arrowLeft.classList.toggle('hidden', scrollLeft <= 0);
-      arrowRight.classList.toggle('hidden', scrollLeft + clientWidth >= scrollWidth - 1);
-    }
+    status.textContent = '';
+    status.classList.remove('is-success', 'is-error');
+    button.textContent = 'Sending…';
+    button.disabled = true;
+    input.disabled = true;
 
-    arrowLeft.addEventListener('click', () => {
-      cardsGrid.scrollBy({ left: -getScrollAmount(), behavior: 'smooth' });
-    });
-
-    arrowRight.addEventListener('click', () => {
-      cardsGrid.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
-    });
-
-    cardsGrid.addEventListener('scroll', updateArrows, { passive: true });
-    updateArrows();
-
-    // ── Card auto-advance ──
-    let autoplayTimer;
-    function startAutoplay() {
-      stopAutoplay();
-      autoplayTimer = setInterval(() => {
-        const { scrollLeft, scrollWidth, clientWidth } = cardsGrid;
-        if (scrollLeft + clientWidth >= scrollWidth - 1) {
-          cardsGrid.scrollTo({ left: 0, behavior: 'smooth' });
-        } else {
-          cardsGrid.scrollBy({ left: getScrollAmount(), behavior: 'smooth' });
-        }
-      }, 3000);
-    }
-    function stopAutoplay() {
-      clearInterval(autoplayTimer);
-    }
-
-    const cardsObserver = new IntersectionObserver((entries) => {
-      entries.forEach(e => e.isIntersecting ? startAutoplay() : stopAutoplay());
-    }, { threshold: 0.3 });
-    cardsObserver.observe(document.querySelector('.cards-section'));
-
-    cardsGrid.addEventListener('pointerdown', () => { stopAutoplay(); setTimeout(startAutoplay, 5000); });
-    arrowLeft.addEventListener('click', () => { stopAutoplay(); setTimeout(startAutoplay, 5000); });
-    arrowRight.addEventListener('click', () => { stopAutoplay(); setTimeout(startAutoplay, 5000); });
-
-    // ── Notify form handler ──
-    const WEB3FORMS_KEY = '1582ecce-b702-4183-bd0a-5fcc2da799dd';
-
-    function handleNotify(e) {
-      e.preventDefault();
-      const form = e.target;
-      const input = form.querySelector('input[type="email"]');
-      const button = form.querySelector('button');
-      const email = input.value;
-
-      button.textContent = 'Sending...';
-      button.disabled = true;
-      input.disabled = true;
-
-      fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_KEY,
-          subject: 'New Clair Signup: ' + email,
-          from_name: 'Clair Website',
-          email: email,
-          message: email + ' wants to be notified when Clair launches.'
-        })
+    fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject: 'New Clair Signup: ' + email,
+        from_name: 'Clair Website',
+        email: email,
+        message: email + ' wants to be notified when Clair launches.'
       })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          button.textContent = "You're in!";
-          button.style.background = '#34C759';
-          input.value = '';
-        } else {
-          button.textContent = 'Try again';
-          button.style.background = '#FF3B30';
-        }
-        setTimeout(() => {
-          button.textContent = 'Get Notified';
-          button.style.background = '';
-          input.disabled = false;
-          button.disabled = false;
-        }, 3000);
-      })
-      .catch(() => {
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        button.textContent = "You're in!";
+        button.style.background = 'var(--green)';
+        button.style.color = '#fff';
+        input.value = '';
+        status.textContent = 'Thanks! You are on the launch list.';
+        status.classList.add('is-success');
+      } else {
         button.textContent = 'Try again';
-        button.style.background = '#FF3B30';
-        setTimeout(() => {
-          button.textContent = 'Get Notified';
-          button.style.background = '';
-          input.disabled = false;
-          button.disabled = false;
-        }, 3000);
-      });
-    }
-  </script>
+        button.style.background = 'var(--red)';
+        button.style.color = '#fff';
+        status.textContent = 'Something went wrong. Please try again.';
+        status.classList.add('is-error');
+      }
+      setTimeout(() => {
+        button.textContent = 'Get notified';
+        button.style.background = '';
+        button.style.color = '';
+        input.disabled = false;
+        button.disabled = false;
+      }, 2500);
+    })
+    .catch(() => {
+      button.textContent = 'Try again';
+      button.style.background = 'var(--red)';
+      button.style.color = '#fff';
+      status.textContent = 'Something went wrong. Please try again.';
+      status.classList.add('is-error');
+      setTimeout(() => {
+        button.textContent = 'Get notified';
+        button.style.background = '';
+        button.style.color = '';
+        input.disabled = false;
+        button.disabled = false;
+      }, 2500);
+    });
+  }
+</script>
 
 </body>
 </html>
